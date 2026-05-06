@@ -1,68 +1,40 @@
 # beacon-ui-timeline-bench
 
-`beacon-ui-timeline-bench` treats frontend apps as a local verification problem. The Lua implementation is intentionally narrow, but the fixtures and notes make the behavior explicit.
+`beacon-ui-timeline-bench` is a Lua project in frontend apps. Its focus is to develop a Lua command-oriented project for timeline scenarios with safe and unsafe fixtures, remediation hints, and explicit failure cases.
 
-## Beacon UI Timeline Bench Checkpoints
+## Why This Exists
 
-Treat the compact fixture as the contract and the extended examples as a scratchpad. The code should stay boring enough that a change in behavior is obvious from the test output.
+I want this repository to be useful as a quick reading exercise: fixtures first, implementation second, verifier last.
 
-## What This Is For
+## Beacon UI Timeline Bench Review Notes
 
-This is not a wrapper around a service. It is a self-contained project that shows how the model behaves when demand, capacity, latency, risk, and weight move in different directions.
+Start with `interaction cost` and `view drift`. Those cases create the widest score spread in this repo, so they are the best quick check when the model changes.
 
-## Case Study
+## Capabilities
 
-The examples are meant to be readable before they are exhaustive. They cover enough variation to show how latency and risk can pull a decision below the threshold.
+- `fixtures/domain_review.csv` adds cases for view drift and state pressure.
+- `metadata/domain-review.json` records the same cases in structured form.
+- `config/review-profile.json` captures the read order and the two review questions.
+- `examples/beacon-ui-timeline-walkthrough.md` walks through the case spread.
+- The Lua code includes a review path for `interaction cost` and `view drift`.
+- `docs/field-notes.md` explains the strongest and weakest cases.
 
-## Architecture Notes
+## Implementation Shape
 
-The interesting part is the boundary between accepted and reviewed scenarios. Extended examples sit near that boundary so future edits can show whether the model became more permissive or more cautious. The Lua project keeps the module shape simple and validates behavior through a direct script.
+The repository has two validation layers: the original compact policy fixture and the domain review fixture. They are separate so one can change without hiding failures in the other.
 
-## Useful Pieces
+The Lua implementation avoids hidden state so fixture changes are easy to reason about.
 
-- Models view models with deterministic scoring and explicit review decisions.
-- Uses fixture data to keep interaction state changes visible in code review.
-- Includes extended examples for layout checks, including `recovery` and `degraded`.
-- Documents fixture data tradeoffs in `docs/operations.md`.
-- Runs locally with a single verification command and no external credentials.
-
-## Local Workflow
+## Local Usage
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify.ps1
 ```
 
-This runs the language-level build or test path against the compact fixture set.
+## Verification
 
-## Quality Gate
+The verifier is intentionally local. It should fail if the fixture score math, lane assignment, or language-specific test drifts.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/audit.ps1
-```
+## Roadmap
 
-The audit command checks repository structure and README constraints before it delegates to the verifier.
-
-## Project Layout
-
-- `src`: primary implementation
-- `tests`: verification harness
-- `fixtures`: compact golden scenarios
-- `examples`: expanded scenario set
-- `metadata`: project constants and verification metadata
-- `docs`: operations and extension notes
-- `scripts`: local verification and audit commands
-
-## Expansion Ideas
-
-- Add a comparison mode that shows how decisions change when one signal is adjusted.
-- Add a loader for `examples/extended_cases.csv` and promote selected cases into the language test suite.
-- Add a short report command that prints the score breakdown for a single scenario.
-- Add one more frontend apps fixture that focuses on a malformed or borderline input.
-
-## Scope
-
-The scoring model is simple by design. More domain-specific behavior should be added through explicit adapters or extra fixture classes rather than hidden constants.
-
-## Tooling
-
-The only required setup is the local Lua toolchain. After cloning, stay in the repo root so fixture paths resolve correctly.
+The repository is intentionally scoped to local checks. I would expand it by adding adversarial fixtures before adding features.
